@@ -100,51 +100,20 @@ CIMGUI_API bool ImGui_ImplSDL3_ProcessEvent(const SDL_Event* event);
 CIMGUI_API void ImGui_ImplSDL3_SetGamepadMode(ImGui_ImplSDL3_GamepadMode mode,SDL_Gamepad** manual_gamepads_array,int manual_gamepads_count);
 
 #endif
-#ifdef CIMGUI_USE_SDLRENDERER2
-#ifdef CIMGUI_DEFINE_ENUMS_AND_STRUCTS
-
-typedef struct SDL_Renderer SDL_Renderer;
-struct SDL_Renderer;
-typedef struct ImGui_ImplSDLRenderer2_RenderState ImGui_ImplSDLRenderer2_RenderState;
-struct ImGui_ImplSDLRenderer2_RenderState
-{
-    SDL_Renderer* Renderer;
-};
-#endif //CIMGUI_DEFINE_ENUMS_AND_STRUCTS
-CIMGUI_API bool ImGui_ImplSDLRenderer2_Init(SDL_Renderer* renderer);
-CIMGUI_API void ImGui_ImplSDLRenderer2_Shutdown(void);
-CIMGUI_API void ImGui_ImplSDLRenderer2_NewFrame(void);
-CIMGUI_API void ImGui_ImplSDLRenderer2_RenderDrawData(ImDrawData* draw_data,SDL_Renderer* renderer);
-CIMGUI_API void ImGui_ImplSDLRenderer2_CreateDeviceObjects(void);
-CIMGUI_API void ImGui_ImplSDLRenderer2_DestroyDeviceObjects(void);
-CIMGUI_API void ImGui_ImplSDLRenderer2_UpdateTexture(ImTextureData* tex);
-
-#endif
-#ifdef CIMGUI_USE_SDLRENDERER3
-#ifdef CIMGUI_DEFINE_ENUMS_AND_STRUCTS
-
-typedef struct SDL_Renderer SDL_Renderer;
-struct SDL_Renderer;
-typedef struct ImGui_ImplSDLRenderer3_RenderState ImGui_ImplSDLRenderer3_RenderState;
-struct ImGui_ImplSDLRenderer3_RenderState
-{
-    SDL_Renderer* Renderer;
-};
-#endif //CIMGUI_DEFINE_ENUMS_AND_STRUCTS
-CIMGUI_API bool ImGui_ImplSDLRenderer3_Init(SDL_Renderer* renderer);
-CIMGUI_API void ImGui_ImplSDLRenderer3_Shutdown(void);
-CIMGUI_API void ImGui_ImplSDLRenderer3_NewFrame(void);
-CIMGUI_API void ImGui_ImplSDLRenderer3_RenderDrawData(ImDrawData* draw_data,SDL_Renderer* renderer);
-CIMGUI_API void ImGui_ImplSDLRenderer3_CreateDeviceObjects(void);
-CIMGUI_API void ImGui_ImplSDLRenderer3_DestroyDeviceObjects(void);
-CIMGUI_API void ImGui_ImplSDLRenderer3_UpdateTexture(ImTextureData* tex);
-
-#endif
 #ifdef CIMGUI_USE_VULKAN
 #ifdef CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 
 typedef struct ImGui_ImplVulkanH_Frame ImGui_ImplVulkanH_Frame;
 typedef struct ImGui_ImplVulkanH_Window ImGui_ImplVulkanH_Window;
+typedef struct ImGui_ImplVulkan_PipelineInfo ImGui_ImplVulkan_PipelineInfo;
+struct ImGui_ImplVulkan_PipelineInfo
+{
+    VkRenderPass RenderPass;
+    uint32_t Subpass;
+    VkSampleCountFlagBits MSAASamples;
+    VkPipelineRenderingCreateInfoKHR PipelineRenderingCreateInfo;
+    VkImageUsageFlags SwapChainImageUsage;
+};
 typedef struct ImGui_ImplVulkan_InitInfo ImGui_ImplVulkan_InitInfo;
 struct ImGui_ImplVulkan_InitInfo
 {
@@ -159,22 +128,14 @@ struct ImGui_ImplVulkan_InitInfo
     uint32_t MinImageCount;
     uint32_t ImageCount;
     VkPipelineCache PipelineCache;
-    VkRenderPass RenderPass;
-    uint32_t Subpass;
-    VkSampleCountFlagBits MSAASamples;
+    ImGui_ImplVulkan_PipelineInfo PipelineInfoMain;
+    ImGui_ImplVulkan_PipelineInfo PipelineInfoForViewports;
     bool UseDynamicRendering;
-    VkPipelineRenderingCreateInfoKHR PipelineRenderingCreateInfo;
     const VkAllocationCallbacks* Allocator;
     void (*CheckVkResultFn)(VkResult err);
     VkDeviceSize MinAllocationSize;
-};
-typedef struct ImGui_ImplVulkan_MainPipelineCreateInfo ImGui_ImplVulkan_MainPipelineCreateInfo;
-struct ImGui_ImplVulkan_MainPipelineCreateInfo
-{
-    VkRenderPass RenderPass;
-    uint32_t Subpass;
-    VkSampleCountFlagBits MSAASamples;
-    VkPipelineRenderingCreateInfoKHR PipelineRenderingCreateInfo;
+    VkShaderModuleCreateInfo CustomShaderVertCreateInfo;
+    VkShaderModuleCreateInfo CustomShaderFragCreateInfo;
 };
 typedef struct ImGui_ImplVulkan_RenderState ImGui_ImplVulkan_RenderState;
 struct ImGui_ImplVulkan_RenderState
@@ -233,18 +194,19 @@ CIMGUI_API void ImGui_ImplVulkan_Shutdown(void);
 CIMGUI_API void ImGui_ImplVulkan_NewFrame(void);
 CIMGUI_API void ImGui_ImplVulkan_RenderDrawData(ImDrawData* draw_data,VkCommandBuffer command_buffer,VkPipeline pipeline);
 CIMGUI_API void ImGui_ImplVulkan_SetMinImageCount(uint32_t min_image_count);
-CIMGUI_API void ImGui_ImplVulkan_CreateMainPipeline(const ImGui_ImplVulkan_MainPipelineCreateInfo info);
+CIMGUI_API void ImGui_ImplVulkan_CreateMainPipeline(const ImGui_ImplVulkan_PipelineInfo* info);
 CIMGUI_API void ImGui_ImplVulkan_UpdateTexture(ImTextureData* tex);
 CIMGUI_API VkDescriptorSet ImGui_ImplVulkan_AddTexture(VkSampler sampler,VkImageView image_view,VkImageLayout image_layout);
 CIMGUI_API void ImGui_ImplVulkan_RemoveTexture(VkDescriptorSet descriptor_set);
 CIMGUI_API bool ImGui_ImplVulkan_LoadFunctions(uint32_t api_version,PFN_vkVoidFunction(*loader_func)(const char* function_name,void* user_data),void* user_data);
-CIMGUI_API void ImGui_ImplVulkanH_CreateOrResizeWindow(VkInstance instance,VkPhysicalDevice physical_device,VkDevice device,ImGui_ImplVulkanH_Window* wd,uint32_t queue_family,const VkAllocationCallbacks* allocator,int w,int h,uint32_t min_image_count);
+CIMGUI_API void ImGui_ImplVulkanH_CreateOrResizeWindow(VkInstance instance,VkPhysicalDevice physical_device,VkDevice device,ImGui_ImplVulkanH_Window* wd,uint32_t queue_family,const VkAllocationCallbacks* allocator,int w,int h,uint32_t min_image_count,VkImageUsageFlags image_usage);
 CIMGUI_API void ImGui_ImplVulkanH_DestroyWindow(VkInstance instance,VkDevice device,ImGui_ImplVulkanH_Window* wd,const VkAllocationCallbacks* allocator);
 CIMGUI_API VkSurfaceFormatKHR ImGui_ImplVulkanH_SelectSurfaceFormat(VkPhysicalDevice physical_device,VkSurfaceKHR surface,const VkFormat* request_formats,int request_formats_count,VkColorSpaceKHR request_color_space);
 CIMGUI_API VkPresentModeKHR ImGui_ImplVulkanH_SelectPresentMode(VkPhysicalDevice physical_device,VkSurfaceKHR surface,const VkPresentModeKHR* request_modes,int request_modes_count);
 CIMGUI_API VkPhysicalDevice ImGui_ImplVulkanH_SelectPhysicalDevice(VkInstance instance);
 CIMGUI_API uint32_t ImGui_ImplVulkanH_SelectQueueFamilyIndex(VkPhysicalDevice physical_device);
 CIMGUI_API int ImGui_ImplVulkanH_GetMinImageCountFromPresentMode(VkPresentModeKHR present_mode);
+CIMGUI_API ImGui_ImplVulkanH_Window* ImGui_ImplVulkanH_GetWindowDataFromViewport(ImGuiViewport* viewport);
 CIMGUI_API ImGui_ImplVulkanH_Window* ImGui_ImplVulkanH_Window_ImGui_ImplVulkanH_Window(void);
 
 #endif

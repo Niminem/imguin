@@ -1,4 +1,4 @@
-import std/[os,strutils]
+import std/[os,strutils,strformat]
 
 const CIMGUI_DEFS_FILE = "cimgui_defs.nim"
 
@@ -7,9 +7,9 @@ proc currentSourceDir(): string {.compileTime.} =
   result = result[0 ..< result.rfind("/")]
 
 #--- To specify the place that has "stdbool.h"
-#const ClangIncludePath = "c:/drvDx/msys64/ucrt64/lib/clang/20/include"
-const ClangIncludePath = "c:/drvDx/msys64/mingw64/lib/clang/21/include"
-#const ClangIncludePath = "c:/llvm/lib/clang/17/include"
+const ClangVersion = 21
+const ClangIncludePath = fmt"c:/drvDx/msys64/ucrt64/lib/clang/{ClangVersion}/include"
+#const ClangIncludePath = fmt"c:/drvDx/msys64/mingw64/lib/clang/{ClangVersion}/include"
 
 # Set root path of ImGui/CImGui
 const CImguiPath           = joinPath(currentSourceDir(),"private/cimgui").replace("\\", "/")

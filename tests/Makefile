@@ -5,8 +5,7 @@ endif
 TARGET = tglfw_opengl3
 
 all:
-	(cd ..; nimble make)
-#	./$(TARGET)$(EXE)
+	nim c -r -d:strip -d:ImSpinner tglfw_opengl3.nim
 
 clean:
 	@-rm -f $(TARGET)$(EXE)

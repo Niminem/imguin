@@ -276,9 +276,10 @@ type
     ImGui_BackendFlags_HasMouseCursors = 2, ImGui_BackendFlags_HasSetMousePos = 4,
     ImGui_BackendFlags_RendererHasVtxOffset = 8,
     ImGui_BackendFlags_RendererHasTextures = 16,
-    ImGui_BackendFlags_PlatformHasViewports = 1024,
-    ImGui_BackendFlags_HasMouseHoveredViewport = 2048,
-    ImGui_BackendFlags_RendererHasViewports = 4096
+    ImGui_BackendFlags_RendererHasViewports = 1024,
+    ImGui_BackendFlags_PlatformHasViewports = 2048,
+    ImGui_BackendFlags_HasMouseHoveredViewport = 4096,
+    ImGui_BackendFlags_HasParentViewport = 8192
 type
   enum_ImGuiCol_private* {.size: sizeof(cuint).} = enum
     ImGui_Col_Text = 0, ImGui_Col_TextDisabled = 1, ImGui_Col_WindowBg = 2,
@@ -307,9 +308,10 @@ type
     ImGui_Col_TableBorderLight = 49, ImGui_Col_TableRowBg = 50,
     ImGui_Col_TableRowBgAlt = 51, ImGui_Col_TextLink = 52,
     ImGui_Col_TextSelectedBg = 53, ImGui_Col_TreeLines = 54,
-    ImGui_Col_DragDropTarget = 55, ImGui_Col_NavCursor = 56,
-    ImGui_Col_NavWindowingHighlight = 57, ImGui_Col_NavWindowingDimBg = 58,
-    ImGui_Col_ModalWindowDimBg = 59, ImGui_Col_COUNT = 60
+    ImGui_Col_DragDropTarget = 55, ImGui_Col_UnsavedMarker = 56,
+    ImGui_Col_NavCursor = 57, ImGui_Col_NavWindowingHighlight = 58,
+    ImGui_Col_NavWindowingDimBg = 59, ImGui_Col_ModalWindowDimBg = 60,
+    ImGui_Col_COUNT = 61
 type
   enum_ImGuiStyleVar_private* {.size: sizeof(cuint).} = enum
     ImGui_StyleVar_Alpha = 0, ImGui_StyleVar_DisabledAlpha = 1,
@@ -1729,6 +1731,7 @@ type
     DragDropTargetRect*: ImRect
     DragDropTargetClipRect*: ImRect
     DragDropTargetId*: ImGuiID
+    DragDropTargetFullViewport*: ImGuiID
     DragDropAcceptFlags*: ImGuiDragDropFlags
     DragDropAcceptIdCurrRectSurface*: cfloat
     DragDropAcceptIdCurr*: ImGuiID
@@ -1889,7 +1892,7 @@ type
     ConfigViewportsNoTaskBarIcon*: bool
     ConfigViewportsNoDecoration*: bool
     ConfigViewportsNoDefaultParent*: bool
-    ConfigViewportPlatformFocusSetsImGuiFocus*: bool
+    ConfigViewportsPlatformFocusSetsImGuiFocus*: bool
     ConfigDpiScaleFonts*: bool
     ConfigDpiScaleViewports*: bool
     MouseDrawCursor*: bool
@@ -2181,7 +2184,7 @@ type
     AntiAliasedFill*: bool
     CurveTessellationTol*: cfloat
     CircleTessellationMaxError*: cfloat
-    Colors*: array[60'i64, ImVec4]
+    Colors*: array[61'i64, ImVec4]
     HoverStationaryDelay*: cfloat
     HoverDelayShort*: cfloat
     HoverDelayNormal*: cfloat
@@ -2219,6 +2222,7 @@ type
     WorkSize*: ImVec2
     DpiScale*: cfloat
     ParentViewportId*: ImGuiID
+    ParentViewport*: ptr ImGuiViewport
     DrawData*: ptr ImDrawData
     RendererUserData*: pointer
     PlatformUserData*: pointer
@@ -3476,8 +3480,8 @@ type
   struct_ImGuiKeyRoutingData* {.pure, inheritable, bycopy.} = object
     NextEntryIndex*: ImGuiKeyRoutingIndex
     Mods*: ImU16
-    RoutingCurrScore*: ImU8
-    RoutingNextScore*: ImU8
+    RoutingCurrScore*: ImU16
+    RoutingNextScore*: ImU16
     RoutingCurr*: ImGuiID
     RoutingNext*: ImGuiID
   ImGuiKeyRoutingTable* = struct_ImGuiKeyRoutingTable
@@ -4593,14 +4597,7 @@ type
   ImGuiToggleFlags* = cint
   ImGuiToggleA11yStyle* = cint
   struct_iobuf* {.pure, inheritable, bycopy.} = object
-    internal_ptr*: cstring
-    internal_cnt*: cint
-    internal_base*: cstring
-    internal_flag*: cint
-    internal_file*: cint
-    internal_charbuf*: cint
-    internal_bufsiz*: cint
-    internal_tmpfname*: cstring
+    internal_Placeholder*: pointer
   compiler_time64_t* = clonglong
 when extern is typedesc:
   type
@@ -4626,11 +4623,11 @@ when "v0.6.8" is static:
     IGFD_VERSION* = "v0.6.8"
 else:
   let IGFD_VERSION* = "v0.6.8"
-when "1.90.5 WIP" is static:
+when "1.92.0 WIP" is static:
   const
-    IGFD_IMGUI_SUPPORTED_VERSION* = "1.90.5 WIP"
+    IGFD_IMGUI_SUPPORTED_VERSION* = "1.92.0 WIP"
 else:
-  let IGFD_IMGUI_SUPPORTED_VERSION* = "1.90.5 WIP"
+  let IGFD_IMGUI_SUPPORTED_VERSION* = "1.92.0 WIP"
 when 1.618033988749895 is static:
   const
     ImGui_ToggleConstants_Phi* = 1.618033988749895
@@ -5432,6 +5429,8 @@ proc ImGuiViewport_GetCenter*(pOut: ptr ImVec2; self: ptr ImGuiViewport): void {
 proc ImGuiViewport_GetWorkCenter*(pOut: ptr ImVec2; self: ptr ImGuiViewport): void {.cdecl, importc: "ImGuiViewport_GetWorkCenter".}
 proc ImGuiPlatformIO_ImGuiPlatformIO*(): ptr ImGuiPlatformIO {.cdecl, importc: "ImGuiPlatformIO_ImGuiPlatformIO".}
 proc ImGuiPlatformIO_destroy*(self: ptr ImGuiPlatformIO): void {.cdecl, importc: "ImGuiPlatformIO_destroy".}
+proc ImGuiPlatformIO_ClearPlatformHandlers*(self: ptr ImGuiPlatformIO): void {.cdecl, importc: "ImGuiPlatformIO_ClearPlatformHandlers".}
+proc ImGuiPlatformIO_ClearRendererHandlers*(self: ptr ImGuiPlatformIO): void {.cdecl, importc: "ImGuiPlatformIO_ClearRendererHandlers".}
 proc ImGuiPlatformMonitor_ImGuiPlatformMonitor*(): ptr ImGuiPlatformMonitor {.cdecl, importc: "ImGuiPlatformMonitor_ImGuiPlatformMonitor".}
 proc ImGuiPlatformMonitor_destroy*(self: ptr ImGuiPlatformMonitor): void {.cdecl, importc: "ImGuiPlatformMonitor_destroy".}
 proc ImGuiPlatformImeData_ImGuiPlatformImeData*(): ptr ImGuiPlatformImeData {.cdecl, importc: "ImGuiPlatformImeData_ImGuiPlatformImeData".}
@@ -5992,9 +5991,11 @@ proc igPopFocusScope*(): void {.cdecl, importc: "igPopFocusScope".}
 proc igGetCurrentFocusScope*(): ImGuiID {.cdecl, importc: "igGetCurrentFocusScope".}
 proc igIsDragDropActive*(): bool {.cdecl, importc: "igIsDragDropActive".}
 proc igBeginDragDropTargetCustom*(bb: ImRect; id: ImGuiID): bool {.cdecl, importc: "igBeginDragDropTargetCustom".}
+proc igBeginDragDropTargetViewport*(viewport: ptr ImGuiViewport; p_bb: ptr ImRect): bool {.cdecl, importc: "igBeginDragDropTargetViewport".}
 proc igClearDragDrop*(): void {.cdecl, importc: "igClearDragDrop".}
 proc igIsDragDropPayloadBeingAccepted*(): bool {.cdecl, importc: "igIsDragDropPayloadBeingAccepted".}
-proc igRenderDragDropTargetRect*(bb: ImRect; item_clip_rect: ImRect): void {.cdecl, importc: "igRenderDragDropTargetRect".}
+proc igRenderDragDropTargetRectForItem*(bb: ImRect): void {.cdecl, importc: "igRenderDragDropTargetRectForItem".}
+proc igRenderDragDropTargetRectEx*(draw_list: ptr ImDrawList; bb: ImRect): void {.cdecl, importc: "igRenderDragDropTargetRectEx".}
 proc igGetTypingSelectRequest*(flags: ImGuiTypingSelectFlags): ptr ImGuiTypingSelectRequest {.cdecl, importc: "igGetTypingSelectRequest".}
 proc igTypingSelectFindMatch*(req: ptr ImGuiTypingSelectRequest; items_count: cint; get_item_name_func: proc (a0: pointer; a1: cint): cstring {.cdecl.}; user_data: pointer; nav_item_idx: cint): cint {.cdecl, importc: "igTypingSelectFindMatch".}
 proc igTypingSelectFindNextSingleCharMatch*(req: ptr ImGuiTypingSelectRequest; items_count: cint; get_item_name_func: proc (a0: pointer; a1: cint): cstring {.cdecl.}; user_data: pointer; nav_item_idx: cint): cint {.cdecl, importc: "igTypingSelectFindNextSingleCharMatch".}
@@ -6571,7 +6572,7 @@ proc ImPlot_PlotDigital_U32Ptr*(label_id: cstring; xs: ptr ImU32; ys: ptr ImU32;
 proc ImPlot_PlotDigital_S64Ptr*(label_id: cstring; xs: ptr ImS64; ys: ptr ImS64; count: cint; flags: ImPlotDigitalFlags; offset: cint; stride: cint): void {.cdecl, importc: "ImPlot_PlotDigital_S64Ptr".}
 proc ImPlot_PlotDigital_U64Ptr*(label_id: cstring; xs: ptr ImU64; ys: ptr ImU64; count: cint; flags: ImPlotDigitalFlags; offset: cint; stride: cint): void {.cdecl, importc: "ImPlot_PlotDigital_U64Ptr".}
 proc ImPlot_PlotDigitalG*(label_id: cstring; getter: ImPlotPoint_getter; data: pointer; count: cint; flags: ImPlotDigitalFlags): void {.cdecl, importc: "ImPlot_PlotDigitalG".}
-proc ImPlot_PlotImage*(label_id: cstring; user_texture_id: ImTextureID; bounds_min: ImPlotPoint; bounds_max: ImPlotPoint; uv0: ImVec2; uv1: ImVec2; tint_col: ImVec4; flags: ImPlotImageFlags): void {.cdecl, importc: "ImPlot_PlotImage".}
+proc ImPlot_PlotImage*(label_id: cstring; tex_ref: ImTextureRef; bounds_min: ImPlotPoint; bounds_max: ImPlotPoint; uv0: ImVec2; uv1: ImVec2; tint_col: ImVec4; flags: ImPlotImageFlags): void {.cdecl, importc: "ImPlot_PlotImage".}
 proc ImPlot_PlotText*(text: cstring; x: cdouble; y: cdouble; pix_offset: ImVec2; flags: ImPlotTextFlags): void {.cdecl, importc: "ImPlot_PlotText".}
 proc ImPlot_PlotDummy*(label_id: cstring; flags: ImPlotDummyFlags): void {.cdecl, importc: "ImPlot_PlotDummy".}
 proc ImPlot_DragPoint*(id: cint; x: ptr cdouble; y: ptr cdouble; col: ImVec4; size: cfloat; flags: ImPlotDragToolFlags; out_clicked: ptr bool; out_hovered: ptr bool; held: ptr bool): bool {.cdecl, importc: "ImPlot_DragPoint".}

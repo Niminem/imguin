@@ -9,7 +9,7 @@
   - [Install](#install)
   - [Available libraries](#available-libraries)
   - [Frontends and Backends](#frontends-and-backends)
-  - [Update / Downgrade Dear ImGui and CImGui](#update--downgrade-dear-imgui-and-cimgui)
+  - [Update / Downgrade Dear ImGui and CImGui by yourself](#update--downgrade-dear-imgui-and-cimgui-by-yourself)
   - [TODO](#todo)
   - [My tools version](#my-tools-version)
   - [Other link](#other-link)
@@ -20,7 +20,7 @@
 
 ![alt](https://github.com/dinau/imguin/actions/workflows/windows.yml/badge.svg)  ![alt](https://github.com/dinau/imguin/actions/workflows/linux.yml/badge.svg)
 
-Updated to latest [Dear ImGui](https://github.com/ocornut/imgui) / [CImGui](https://github.com/cimgui/cimgui) version: : **v1.92.3 dock** (2025/09)
+Updated to latest [Dear ImGui](https://github.com/ocornut/imgui) / [CImGui](https://github.com/cimgui/cimgui) version: : **v1.92.4 dock** (2025/11)
 
 This project is Dear ImGui wrapper library for Nim language [^notice].
 
@@ -57,7 +57,7 @@ Note: First see examples project  [ImGuin_examples](https://github.com/dinau/img
 ---
 
 - [Nim-2.2.4](https://nim-lang.org) or later
-- Windows10 or later  
+- Windows11 or later  
 [MSys2/MinGW](https://www.msys2.org/) command line tools (Unix tools), make, cp, rm, git, ...etc
 
   ```sh
@@ -72,13 +72,14 @@ Note: First see examples project  [ImGuin_examples](https://github.com/dinau/img
    ```
 
    - Install nim
-   ```sh
-   curl https://nim-lang.org/choosenim/init.sh -sSf | sh
-   ```
-   You must now ensure that the Nimble bin dir is in your PATH.
-   Place the following line in the ~/.profile or ~/.bashrc file.
-   export PATH=/home/username/.nimble/bin:$PATH
-     ```
+
+      ```sh
+      curl https://nim-lang.org/choosenim/init.sh -sSf | sh
+      ```
+
+      You must now ensure that the Nimble bin dir is in your PATH.
+      Place the following line in the ~/.profile or ~/.bashrc file.
+      export PATH=/home/username/.nimble/bin:$PATH
 
 #### Install
 
@@ -124,7 +125,7 @@ Additional examples
 
 [^fed]: Front end
 
-#### Update / Downgrade Dear ImGui and CImGui
+#### Update / Downgrade Dear ImGui and CImGui by yourself
 
 ---
 
@@ -208,6 +209,7 @@ Windows OS is all OK.
 
    | ImGui/CImGui Ver. | ImGuin Ver. | Date    | Linux Debian Family (3) |
    | :--------------:  | ---------   | :----:  | :---:                   |
+   | 1.92.4  dock      | 1.92.4.0    | 2025/11 | OK                      |
    | 1.92.3  dock      | 1.92.3.0    | 2025/09 | OK                      |
    | 1.92.2b dock      | 1.92.2.1    | 2025/09 | OK                      |
    | 1.92.2b dock      | 1.92.2.0    | 2025/08 | OK                      |
