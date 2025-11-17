@@ -455,13 +455,13 @@ static void ImGui_ImplSDLGPU3_CreateShaders()
     else
     {
         vertex_shader_info.entrypoint = "main0";
-        vertex_shader_info.format = SDL_GPU_SHADERFORMAT_METALLIB;
-        vertex_shader_info.code = metallib_vertex;
-        vertex_shader_info.code_size = sizeof(metallib_vertex);
+        vertex_shader_info.format = SDL_GPU_SHADERFORMAT_MSL;
+        vertex_shader_info.code = msl_vertex;
+        vertex_shader_info.code_size = sizeof(msl_vertex);
         fragment_shader_info.entrypoint = "main0";
-        fragment_shader_info.format = SDL_GPU_SHADERFORMAT_METALLIB;
-        fragment_shader_info.code = metallib_fragment;
-        fragment_shader_info.code_size = sizeof(metallib_fragment);
+        fragment_shader_info.format = SDL_GPU_SHADERFORMAT_MSL;
+        fragment_shader_info.code = msl_fragment;
+        fragment_shader_info.code_size = sizeof(msl_fragment);
     }
 #endif
     bd->VertexShader = SDL_CreateGPUShader(v->Device, &vertex_shader_info);
