@@ -92,20 +92,6 @@ else: # Use generated header by Futark in your programs.
   include "cimgui_defs.nim"
   {.pop.}
 
-  # for glfw3
-  when true:
-    # Use GLFW of glfw-4|3.x.x package
-    when defined(windows):
-      const dirs = staticExec("nimble path glfw").strip.split("\n")
-      {.passC:"-I" & joinPath(dirs[0],"glfw","include").replace("\\", "/").} # dirs[0]: Select max hash version: TODO
-    when defined(linux):
-      {.passC:"-I/usr/include".replace("\\", "/").} # Debian families
-  else:
-    # Use GLFW of nimgl package
-    const dirs = staticExec("nimble path nimgl").strip.split("\n")
-    {.passC:"-I" & joinPath(dirs[0],"nimgl","private","glfw","include").replace("\\", "/").} # dirs[0]: Select max hash version: TODO
-  #
-  #
   # for ImGui
   {.passC:"-DImDrawIdx=\"unsigned int\"".}
   #{.passC:"-DIMGUI_DISABLE_OBSOLETE_FUNCTIONS=1".}
